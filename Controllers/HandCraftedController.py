@@ -1,12 +1,10 @@
-
-from ActionSpace import Acc, Steer
+from ..ActionSpace import Acc, Steer
 from typing import Tuple
 
-from Controllers.Controller import Controller
+from .Controller import Controller
 
 
 class HandCraftedController(Controller):
-
     v_brake: float
     v_max: float
     phi_threshold: float
