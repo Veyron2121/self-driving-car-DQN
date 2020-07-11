@@ -1,4 +1,4 @@
-from ..ActionSpace import Acc, Steer
+from ActionSpace import Acc, Steer
 from typing import Tuple
 
 from .Controller import Controller
@@ -31,7 +31,7 @@ class HandCraftedController(Controller):
             acc = Acc.ACCELERATE
         if angle > self.phi_threshold:
             steer = Steer.TURN_LEFT
-        if angle < self.phi_threshold:
+        if angle < -self.phi_threshold:
             steer = Steer.TURN_RIGHT
 
         return acc, steer
