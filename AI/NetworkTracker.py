@@ -2,11 +2,15 @@ network_name = 'NewPolicy.h5'
 from keras import layers, models
 import tensorflow as tf
 from keras.optimizers import Adam, RMSprop
-
+import numpy as np
 
 class NetworkTracker:
 
-    def __init__(self, environment, source=False):  # pass in the environment which has input shape of the frame
+
+    model: models
+    target_model: models
+
+    def __init__(self, environment, source: bool = False):  # pass in the environment which has input shape of the frame
         if source:
             self.model = models.load_model(network_name)
         else:
