@@ -1,5 +1,6 @@
 
 class Agent:
+
     def __init__(self, environment, network, run_only=False, eps_decay_rate=0.9975,max_exp_rate=1.0, min_exp_rate=0.05):
         self.env = environment # this should be the environment wrapper class
 

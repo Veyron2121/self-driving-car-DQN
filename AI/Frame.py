@@ -1,15 +1,22 @@
+import numpy as np
+import cv2
+
+from typing import List, Tuple
+from AI.State import State
 
 
 class Frame(State):
-    def __init__(self, state_data, crop_factor=None, destination_size=None, vert_cent=0.5):
+    """Processes and downsamples the image"""
+    state_data: np.array
+
+    def __init__(self, state_data: np.array, crop_factor: Tuple[float] = None,
+                destination_size: int = None, vert_cent: float = 0.5):
         State.__init__(self, state_data)
-        #         self.state_data = self.process_state(crop_factor, vert_cent, destination_shape)
+        # self.state_data = self.process_state(crop_factor, vert_cent, destination_shape)
         self.state_data = self.process_state(crop_factor, vert_cent, (32,32))
 
-    def process_state(self, crop_factor, vert_cent, destination_shape):
-        """
-        Does all the processing of the frame using the helper functions
-        """
+    def process_state(self, crop_factor: Tuple[float], vert_cent: float, destination_shape: Tuple[int]) -> np.array:
+        """Processes the frame using the helper functions"""
         frame = self.crop_frame(self.state_data, crop_factor, vert_cent)
         frame = self.normalise_frame(frame)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -24,28 +31,25 @@ class Frame(State):
 
         return frame
 
-
-    def gray_scale(self, frame, gray_scale_factor=[0.3, 0.3, 0.3]):
+    def gray_scale(self, frame: np.array, gray_scale_factor: Tuple[float] = [0.3, 0.3, 0.3]) -> np.array:
+        """Gray scales the frame"""
         frame = np.dot(frame, np.asarray(gray_scale_factor))
         return frame
 
-    def normalise_frame(self, frame):
+    def normalise_frame(self, frame: np.array) -> np.array:
+        """Normalizes the frame"""
         frame = frame.astype('float32') / 255.0
         return frame
 
-    def downsample_frame(self, frame, destination_shape):
-        """
-        downsamples the frame. decreases the resolution
-        """
+    def downsample_frame(self, frame: np.array, destination_shape: Tuple[int]) -> np.array:
+        """Downsamples the frame and decreases the resolution"""
         frame = cv2.resize(np.asarray(frame), dsize=destination_shape, interpolation=cv2.INTER_CUBIC)
         return frame
 
-    def crop_frame(self, frame, crop_factor, vert_cent=0.5):
-        """
-        input is the frame
-        output is the cropped frame
-        crop_factor is the ratio at which you want to crop the height and width
-        cent is the ratio at which the centre of the cropped frame should be
+    def crop_frame(self, frame: np.array, crop_factor: Tuple[float], vert_cent: float = 0.5) -> np.array:
+        """Outputs the the cropped frame
+        <crop_factor> is the ratio at which you want to crop the height and width
+        <vert_cent> is the ratio at which the centre of the cropped frame should be
         """
         if crop_factor is None:
             return frame
