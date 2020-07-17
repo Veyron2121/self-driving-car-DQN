@@ -8,7 +8,7 @@ context = zmq.Context()
 socket = context.socket(zmq.REP)
 socket.bind("tcp://*:5555")
 
-controller = HandCraftedController(5, 10, 0.15)
+controller = HandCraftedController(8, 10, 0.15)
 
 while True:
     #  Wait for next request from client
