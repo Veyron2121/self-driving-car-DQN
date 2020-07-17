@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class State:
     def __init__(self, state_data):
         self.state_data = np.asarray(state_data)
