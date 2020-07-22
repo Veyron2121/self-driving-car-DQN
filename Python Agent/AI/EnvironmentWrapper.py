@@ -29,7 +29,7 @@ class EnvironmentWrapper:
         # initialising frame buffer
         self.buffer_size = 4  # could change this
 
-        self.current_buff = FrameBuffer(
+        self.current_buffer = FrameBuffer(
             size=self.buffer_size)  # this is the FrameBuffer that keeps track of the latest frames.
         # initialising the frame buffer by just giving it multiple copies of the same starting frame
         # =========================================
@@ -54,11 +54,13 @@ class EnvironmentWrapper:
                              Acc.ACCELERATE, Steer.DO_NOTHING,
                              Acc.ACCELERATE, Steer.TURN_RIGHT]
 
+        self.current_frame = None
+
     def get_input_shape(self):
         """
         returns the input shape for the input layer of the network
         """
-        return self.buffer.get_input_shape()
+        return self.current_buffer.get_input_shape()
 
     def get_state_shape(self):
         """
@@ -78,7 +80,7 @@ class EnvironmentWrapper:
         [steer right, accelerate and brake] is invalid as we cannot accelerate and brake at the same time.
         there are 9 possible actions I think?
         """
-        # TODO: Maybe make this more general?
+
         return len(self.action_space)
 
     def reset(self):
@@ -91,12 +93,13 @@ class EnvironmentWrapper:
         # reset the sim and get the initial frame from it in the folder
 
         path = Path(os.getcwd()).parent / 'scr1.png'
+
         self.current_frame = self.get_frame(path)
 
         for _ in range(int(self.buffer_size)):
-            self.current_buff.assign_to_buffer(self.current_frame)
+            self.current_buffer.assign_to_buffer(self.current_frame)
 
-        return self.current_buff
+        return self.current_buffer
 
     def step(self, action):
         """
@@ -118,13 +121,14 @@ class EnvironmentWrapper:
             speed, angle, distance = self.get_game_stats(data)
 
             f = self.get_frame(data["image_path"])
-            self.current_buff.assign_to_buffer(f)
+            self.current_buffer.assign_to_buffer(f)
 
             reward = self.get_basic_reward(speed, angle, action)
+            self.done = data["is_done"]
 
             # this buffer tensor is what we will input to the NN in the next time step
             # we record this as the next observation.
-            buffer_tensor = self.current_buff.get_input_tensor()
+            buffer_tensor = self.current_buffer.get_input_tensor()
             # A buffer is a collection of consecutive frames that we feed to the NN. These frames are already processed.
 
             # this returns the state of the environment after the action has been completed, the reward for the action and if the episode ended.
@@ -168,7 +172,7 @@ class EnvironmentWrapper:
         """
         returns if the episode is finished
         """
-        raise NotImplementedError
+        return self.done
 
     def close(self):
         """
