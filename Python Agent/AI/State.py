@@ -13,6 +13,7 @@ class State:
         pass
 
     def get_batch_tensor(self) -> np.array:
+        """Reshapes data to an input suitable for Keras processing"""
         holder = np.asarray(self.state_data)
         holder.reshape((1,) + holder.shape)
         return holder

@@ -1,3 +1,5 @@
+from AI.State import State
+
 network_name = 'NewPolicy.h5'
 from keras import layers, models
 import tensorflow as tf
