@@ -3,7 +3,7 @@ from typing import List, Tuple, Any
 
 
 class Memory:
-    """Stores previous experiences"""
+    """Stores replay experiences in a tuple"""
 
     replay: List[Tuple]
     size: int
