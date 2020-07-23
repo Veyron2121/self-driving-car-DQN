@@ -95,8 +95,15 @@ public class CarController : MonoBehaviour {
 
     private bool isManual = true;
 
-    public bool is_done = false;
+    private bool is_done = false;
 
+    public void set_done(bool done){
+        this.is_done = done;
+    }
+
+    public bool get_done(){
+        return this.is_done;
+    }
 
     // Used by SoundController to get average slip velo of all wheels for skid sounds.
     public float slipVelo

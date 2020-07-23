@@ -52,7 +52,7 @@ public class AgentInformation : MonoBehaviour
         // info.image_path = Path.Combine(Application.dataPath, TakeScreenshot.takeScreenshot(400, 400));
         info.image_path = Application.dataPath + "/" + TakeScreenshot.takeScreenshot(32, 32);
 
-        info.is_done = player.is_done;
+        info.is_done = player.GetComponent<CarController>().get_done();
     }
 
     void handleNextAction(string nextAction)
@@ -62,7 +62,7 @@ public class AgentInformation : MonoBehaviour
         player.GetComponent<CarController>().setAcceleration(actions[0]);
         player.GetComponent<CarController>().setDirection(actions[1]);
         if (info.is_done){
-            player.is_done = false;
+            player.GetComponent<CarController>().set_done(false);
         }
     }
 
