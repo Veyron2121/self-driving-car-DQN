@@ -20,7 +20,7 @@ class NetworkTracker:
             self.model.save(network_name)
         self.target_model = self.model
 
-    def define_model(self, env):
+    def define_model(self, env): #defination of the model, its specific to the approach a person is taking.
         model = models.Sequential()
         model.add(
             layers.Conv2D(filters=10, kernel_size=(3, 3), activation='relu',
@@ -54,7 +54,7 @@ class NetworkTracker:
         return output_tensor[
             0]  # you want to convert the 2 dimensional output to 1 dimension to call argmax
 
-    def get_max_q_value_index(self, state):
+    def get_max_q_value_index(self, state): #self explanatory 
         return np.argmax(self.get_q_values_for_one(state))
 
     def get_q_values_for_batch(self, states):
@@ -75,7 +75,7 @@ class NetworkTracker:
     def fit(self, states_batch, targets_batch):
         self.model.fit(states_batch, targets_batch, verbose=1)
 
-    def clone_policy(self):
+    def clone_policy(self): #defining the target network
         self.model.save(network_name)
         self.target_model = models.load_model(network_name)
 
