@@ -2,6 +2,7 @@ import json
 import os
 import random
 from pathlib import Path
+from tkinter import Image
 
 import numpy as np
 import zmq
