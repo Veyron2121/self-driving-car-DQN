@@ -2,7 +2,7 @@ import numpy as np
 from typing import List, Tuple
 
 class State:
-    """Keeps track of the current state"""
+    """Keeps track of the current state in terms of a tuple; could be editted to input frames as input"""
 
     state_data: np.array
 
