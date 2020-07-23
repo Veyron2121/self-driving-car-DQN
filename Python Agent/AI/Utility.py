@@ -79,7 +79,7 @@ class Utility:
         return epochs, training_stats
 
 
-    def extract_tensors(self, sample):
+    def extract_tensors(self, sample): # extracting all the reequired tensors for recording an experience at a specific time
         states = np.asarray([i[0] for i in sample])
         actions = np.asarray([i[1] for i in sample])
         rewards = np.asarray([i[2] for i in sample])
@@ -87,7 +87,7 @@ class Utility:
         done_tensor = np.asarray([i[4] for i in sample])
         return states, actions, rewards, next_states, done_tensor
 
-    def get_target_batch(self, states, actions, rewards, next_states, dones, net, gamma):
+    def get_target_batch(self, states, actions, rewards, next_states, dones, net, gamma): #using the target network to get the target q values so that the loss can be calculated 
         assert actions.ndim == 1
         assert rewards.ndim == 1
         assert dones.ndim == 1
