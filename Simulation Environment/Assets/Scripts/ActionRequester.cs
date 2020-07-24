@@ -14,13 +14,25 @@ public class ActionRequester
         {
             client.Connect("tcp://localhost:5555");
 
-            client.SendFrame(gameState);     
+            client.SendFrame(gameState);
             nextAction = client.ReceiveFrameString();
-            
+
             // Debug.Log("Received: " + nextAction);
         }
 
         NetMQConfig.Cleanup(); // this line is needed to prevent unity freeze after one use, not sure why yet
         return nextAction;
+    }
+
+    public static void sendPath()
+    {
+        ForceDotNet.Force();
+        using(RequestSocket client = new RequestSocket())
+        {
+            client.Connect("tcp://localhost:5555");
+            client.SendFrame(Application.dataPath);
+        }
+
+        NetMQConfig.Cleanup(); // this line is needed to prevent unity freeze after one use, not sure why yet
     }
 }

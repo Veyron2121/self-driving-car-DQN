@@ -11,7 +11,6 @@ public class Information
     public double velocity;
     public double angle_from_road;
     public double distance_from_road;
-    public string image_path;
     public bool is_done;
 
 }
@@ -27,6 +26,8 @@ public class AgentInformation : MonoBehaviour
     // private Checkpoint checkpoint_info;
     private GameObject player;
 
+    private int frame_number;
+
 
     // Start is called before the first frame update
     void Start()
@@ -35,8 +36,9 @@ public class AgentInformation : MonoBehaviour
         info.velocity = 0;
         info.angle_from_road = 0;
         info.distance_from_road = 0;
-        info.image_path = "";
         player = GameObject.FindGameObjectsWithTag("Player")[0];
+        ActionRequester.sendPath();
+        frame_number = 1;
     }
 
     void updateInfo()
@@ -49,8 +51,13 @@ public class AgentInformation : MonoBehaviour
         info.distance_from_road = System.Math.Round(vector_to_checkpoint.magnitude, 2);
         info.angle_from_road = System.Math.Round(Vector3.SignedAngle(vector_to_checkpoint, player.transform.forward, Vector3.up) * Mathf.Deg2Rad, 2);
 
-        // info.image_path = Path.Combine(Application.dataPath, TakeScreenshot.takeScreenshot(400, 400));
-        info.image_path = Application.dataPath + "/" + TakeScreenshot.takeScreenshot(32, 32);
+        TakeScreenshot.takeScreenshot(frame_number);
+        if(frame_number == 3){
+            frame_number = 1;
+        }
+        else{
+            frame_number++;
+        }
 
         info.is_done = player.GetComponent<CarController>().get_done();
     }
@@ -71,17 +78,15 @@ public class AgentInformation : MonoBehaviour
     void Update()
     {
         updateInfo();
-        // bool getAction = Input.GetKeyDown("o");
-        bool getAction = true;
-        if (getAction){
+
+        if (frame_number == 1){
             string gameState = JsonUtility.ToJson(info);
             string nextAction = ActionRequester.getNextAction(gameState);
             handleNextAction(nextAction);
-            getAction = false;
         }
-        
+
         // Remove this line to disable GUI
         gui_info.text = "Speed: " + info.velocity + "\nDistance: " + info.distance_from_road + "\nAngle: " + info.angle_from_road;
-        
+
     }
 }

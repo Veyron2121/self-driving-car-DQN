@@ -8,7 +8,6 @@ import numpy as np
 
 class NetworkTracker:
 
-
     model: models
     target_model: models
 

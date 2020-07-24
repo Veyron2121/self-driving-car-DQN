@@ -15,13 +15,13 @@ while True:
     message = socket.recv()
     # unpack JSON
     data = json.loads(message)
-    print("Received request: %s" % message)
+    # print("Received request: %s" % message)
 
     next_action = controller.get_car_policy(data["velocity"], data["angle_from_road"],
-                                            data["distance_from_road"], data["image_path"])
+                                            data["distance_from_road"], "")
 
     #  Send reply back to client
     message_2 = str(next_action[0]) + ',' + str(next_action[1])
-    print(message_2)
+    # print(message_2)
 
     socket.send(message_2.encode('ascii'))

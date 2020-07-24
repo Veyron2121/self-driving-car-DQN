@@ -3,20 +3,21 @@ import os
 import random
 from pathlib import Path
 from tkinter import Image
+from typing import Dict
 
 import numpy as np
 import zmq
-import cv2
+from PIL import Image
 
 from ActionSpace import Acc, Steer
-from .Frame import Frame
-from .FrameBuffer import FrameBuffer
+from AI.Frame import Frame
+from AI.FrameBuffer import FrameBuffer
+
 
 class EnvironmentWrapper:
 
     def __init__(self):
 
-        # TODO: Change socket behaviour here - Varun
         print("Waiting to connect to Simulator...")
 
         context = zmq.Context()
@@ -26,18 +27,20 @@ class EnvironmentWrapper:
 
         print("Connected to simulator!")
 
+        self.image_path = self.socket.recv()
+
+        initial_state_info = self.get_next_state()
+        speed, angle, distance = self.get_game_stats(initial_state_info)
 
         # initialising frame buffer
-        self.buffer_size = 4  # could change this
+        self.buffer_size = 3  # could change this
 
-        self.current_buffer = FrameBuffer(
-            size=self.buffer_size)  # this is the FrameBuffer that keeps track of the latest frames.
-        # initialising the frame buffer by just giving it multiple copies of the same starting frame
-        # =========================================
+        self.current_buffer = FrameBuffer(size=self.buffer_size)
 
         _ = self.reset()
 
-        self.prev_dist = 0
+        buffer_tensor = self.current_buffer.get_input_tensor()
+        self.current_state = (buffer_tensor, angle, distance, speed)
 
         self.time_steps = 0
 
@@ -63,11 +66,11 @@ class EnvironmentWrapper:
         """
         return self.current_buffer.get_input_shape()
 
-    def get_state_shape(self):
-        """
-        not to be confused with the input shape. This is the shape of individual state (the shape of an individual processed shape of the environment)
-        """
-        return self.current_state.get_shape()
+    # def get_state_shape(self):
+    #     """
+    #     not to be confused with the input shape. This is the shape of individual state (the shape of an individual processed shape of the environment)
+    #     """
+    #     return self.current_state.get_shape()
 
     def get_random_action(self):
         """
@@ -86,6 +89,7 @@ class EnvironmentWrapper:
 
     def reset(self):
         """
+        # TODO: Change
         resets the environment. self.done denotes whether the episode is done i.e. the car has crashed or we have stopped it
         """
         self.done = False
@@ -93,7 +97,7 @@ class EnvironmentWrapper:
 
         # reset the sim and get the initial frame from it in the folder
 
-        path = Path(os.getcwd()).parent / 'scr1.png'
+        path = self.image_path + "Screenshots/PerspectiveSegment_1.png"
 
         self.current_frame = self.get_frame(path)
 
@@ -113,31 +117,45 @@ class EnvironmentWrapper:
         if not self.is_done():
             action_string = str(action[0]) + ',' + str(action[1])
 
+            reward = self.get_basic_reward(self.current_state[1],
+                                           self.current_state[3],
+                                           action)
+
             self.socket.send(action_string.encode('ascii'))
 
-            message = self.socket.recv()
-            # unpack JSON
-            data = json.loads(message)
+            data = self.get_next_state()
             # print("Received request: %s" % message)
             speed, angle, distance = self.get_game_stats(data)
 
-            f = self.get_frame(data["image_path"])
-            self.current_buffer.assign_to_buffer(f)
+            for i in range(self.buffer_size):
+                path = self.image_path + "Screenshots/PerspectiveSegment_{}.png".format(i)
+                f = self.get_frame(path)
+                self.current_buffer.assign_to_buffer(f)
 
-            reward = self.get_basic_reward(speed, angle, action)
             self.done = data["is_done"]
 
-            # this buffer tensor is what we will input to the NN in the next time step
-            # we record this as the next observation.
             buffer_tensor = self.current_buffer.get_input_tensor()
-            # A buffer is a collection of consecutive frames that we feed to the NN. These frames are already processed.
+            # A buffer is a collection of consecutive frames that we feed to the NN.
+            # These frames are already processed.
 
-            # this returns the state of the environment after the action has been completed, the reward for the action and if the episode ended.
-            return buffer_tensor, reward, self.done
+            # the current state consists of all the information from the
+            # environment
+            self.current_state = (buffer_tensor, angle, distance, speed)
+
+            # this returns the state of the environment after the action has
+            # been completed, the reward for the action and if the
+            # episode ended.
+            return self.current_state, reward, self.done
         else:
             return None
 
-    def get_basic_reward(self, speed, angle, action):
+    def get_next_state(self) -> Dict:
+        message = self.socket.recv()
+        # unpack JSON
+        return json.loads(message)
+
+
+    def get_basic_reward(self, angle, speed, action):
         v_min = 5
         v_brake = 20
         v_max = 18
@@ -175,16 +193,14 @@ class EnvironmentWrapper:
         """
         return self.done
 
-    def close(self):
-        """
-        in case we need to 'close' the environment
-        """
-        raise NotImplementedError
+    # def close(self):
+    #     """
+    #     in case we need to 'close' the environment
+    #     """
+    #     raise NotImplementedError
 
     def get_frame(self, path: str) -> Frame:
         """
-        communicates with the sim to get the latest state/frame.
-        returns a Frame object
         Get image from path then convert to np array then make a frame object
         """
         image = Image.open(path, 'r')
@@ -197,7 +213,7 @@ class EnvironmentWrapper:
         get the last n frames from the simulator (they might be stored in a folder by the simulator)
         and store them in a buffer and return them
         """
-        return self.current_buff
+        return self.current_buffer
 
     def get_game_stats(self, data):
         """

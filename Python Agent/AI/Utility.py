@@ -39,7 +39,7 @@ class Utility:
             exploit_times = 0
             while not env.is_done():
                 current_state, action, reward, next_state, done = agent.take_action(state)
-                Cumulative_reward += reward
+                cumulative_reward += reward
                 experience = current_state, action, reward, next_state, done, explored
                 state = next_state
                 memory.push(experience)
@@ -87,7 +87,7 @@ class Utility:
         done_tensor = np.asarray([i[4] for i in sample])
         return states, actions, rewards, next_states, done_tensor
 
-    def get_target_batch(self, states, actions, rewards, next_states, dones, net, gamma): #using the target network to get the target q values so that the loss can be calculated 
+    def get_target_batch(self, states, actions, rewards, next_states, dones, net, gamma): #using the target network to get the target q values so that the loss can be calculated
         assert actions.ndim == 1
         assert rewards.ndim == 1
         assert dones.ndim == 1
