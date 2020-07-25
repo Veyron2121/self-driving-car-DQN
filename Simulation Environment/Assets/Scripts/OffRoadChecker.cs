@@ -5,19 +5,39 @@ using UnityEngine;
 public class OffRoadChecker : MonoBehaviour
 {
     public CarController player;
+
+    private List <GameObject> currentCollisions = new List <GameObject> ();
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectsWithTag("Player")[0].GetComponent<CarController>();
     }
 
+    bool isOnTrack()
+    {
+        foreach (GameObject collidedObject in currentCollisions) 
+        {
+            if(collidedObject.tag == "Track")
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Detects if the car has left the track
     void OnTriggerExit(Collider collider){
         print("Checker: " + collider.gameObject.name+ ", " + collider.gameObject.tag);
-        if (collider.gameObject.tag == "Track")
+        currentCollisions.Remove(collider.gameObject);
+        if (!isOnTrack())
         {
             player.resetPosition();
         }
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        currentCollisions.Add(collider.gameObject);
     }
     
 }

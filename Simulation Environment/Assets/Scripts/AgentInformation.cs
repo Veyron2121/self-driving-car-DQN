@@ -37,7 +37,9 @@ public class AgentInformation : MonoBehaviour
         info.angle_from_road = 0;
         info.distance_from_road = 0;
         player = GameObject.FindGameObjectsWithTag("Player")[0];
-        ActionRequester.sendPath();
+        print("Created AgentInformation");
+        _ = ActionRequester.getNextAction(Application.dataPath);
+        print("Sent path");
         frame_number = 1;
     }
 
@@ -64,7 +66,13 @@ public class AgentInformation : MonoBehaviour
 
     void handleNextAction(string nextAction)
     {
-        // Debug.Log(nextAction);
+        if(string.Compare(nextAction, "reset") == 0){
+            player.GetComponent<CarController>().setAcceleration("Acc.DO_NOTHING");
+            player.GetComponent<CarController>().setDirection("Steer.DO_NOTHING");
+            return;
+        }
+
+        Debug.Log(nextAction);
         string[] actions = nextAction.Split(',');
         player.GetComponent<CarController>().setAcceleration(actions[0]);
         player.GetComponent<CarController>().setDirection(actions[1]);

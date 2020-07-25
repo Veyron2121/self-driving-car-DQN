@@ -16,9 +16,9 @@ public class TakeScreenshot : MonoBehaviour {
     public static void takeScreenshot(int i) 
     {
        // string name = ScreenShotName(width, height);
-       string name = string.Format("Screenshots/PerspectiveSegment_{0}.png", i);
+       string name = string.Format("Assets/Screenshots/PerspectiveSegment_{0}.png", i);
        ScreenCapture.CaptureScreenshot(name);
-       print(name);
+      //  print(name);
     }
 
     void LateUpdate() 

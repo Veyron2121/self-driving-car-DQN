@@ -188,7 +188,7 @@ public class CarController : MonoBehaviour {
 
     void Update() {
 
-        // Debug.Log(string.Format("goStraight: {0}, brake: {1}, left: {2}, right: {3}", goStraight, stop, goLeft, goRight));
+        Debug.Log(string.Format("goStraight: {0}, brake: {1}, left: {2}, right: {3}", goStraight, stop, goLeft, goRight));
 
         bool switchController = Input.GetKeyDown("o");
 

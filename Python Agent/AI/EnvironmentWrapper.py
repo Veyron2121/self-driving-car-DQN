@@ -27,20 +27,24 @@ class EnvironmentWrapper:
 
         print("Connected to simulator!")
 
-        self.image_path = self.socket.recv()
+        print("Getting Image Path")
+        self.image_path = self.socket.recv().decode('ascii')
+        # self.socket.send("Path Received".encode('ascii'))
 
-        initial_state_info = self.get_next_state()
-        speed, angle, distance = self.get_game_stats(initial_state_info)
+        print("Image path received: " + str(self.image_path))
+
+        # initial_state_info = self.get_next_state()
+        # speed, angle, distance = self.get_game_stats(initial_state_info)
 
         # initialising frame buffer
         self.buffer_size = 3  # could change this
 
         self.current_buffer = FrameBuffer(size=self.buffer_size)
+        self.current_state = None
 
         _ = self.reset()
 
-        buffer_tensor = self.current_buffer.get_input_tensor()
-        self.current_state = (buffer_tensor, angle, distance, speed)
+
 
         self.time_steps = 0
 
@@ -48,15 +52,15 @@ class EnvironmentWrapper:
 
         self.max_time_steps_per_episode = 500  # change this based on the environment
 
-        self.action_space = [Acc.BRAKE, Steer.TURN_RIGHT,
-                             Acc.BRAKE, Steer.DO_NOTHING,
-                             Acc.BRAKE, Steer.TURN_RIGHT.
-                             Acc.DO_NOTHING, Steer.TURN_RIGHT,
-                             Acc.DO_NOTHING, Steer.DO_NOTHING,
-                             Acc.DO_NOTHING, Steer.TURN_RIGHT,
-                             Acc.ACCELERATE, Steer.TURN_RIGHT,
-                             Acc.ACCELERATE, Steer.DO_NOTHING,
-                             Acc.ACCELERATE, Steer.TURN_RIGHT]
+        self.action_space = [(Acc.BRAKE, Steer.TURN_RIGHT),
+                             (Acc.BRAKE, Steer.DO_NOTHING),
+                             (Acc.BRAKE, Steer.TURN_LEFT),
+                             (Acc.DO_NOTHING, Steer.TURN_RIGHT),
+                             (Acc.DO_NOTHING, Steer.DO_NOTHING),
+                             (Acc.DO_NOTHING, Steer.TURN_LEFT),
+                             (Acc.ACCELERATE, Steer.TURN_RIGHT),
+                             (Acc.ACCELERATE, Steer.DO_NOTHING),
+                             (Acc.ACCELERATE, Steer.TURN_LEFT)]
 
         self.current_frame = None
 
@@ -87,6 +91,9 @@ class EnvironmentWrapper:
 
         return len(self.action_space)
 
+    def get_action_at_index(self, index):
+        return self.action_space[index]
+
     def reset(self):
         """
         # TODO: Change
@@ -97,14 +104,17 @@ class EnvironmentWrapper:
 
         # reset the sim and get the initial frame from it in the folder
 
-        path = self.image_path + "Screenshots/PerspectiveSegment_1.png"
+        path = self.image_path + "/Screenshots/PerspectiveSegment_1.png"
 
-        self.current_frame = self.get_frame(path)
+        info = self.step("reset")
+        self.current_state, _, self.done = info
 
-        for _ in range(int(self.buffer_size)):
-            self.current_buffer.assign_to_buffer(self.current_frame)
+        # self.current_frame = self.get_frame(path)
+        #
+        # for _ in range(int(self.buffer_size)):
+        #     self.current_buffer.assign_to_buffer(self.current_frame)
 
-        return self.current_buffer
+        return self.current_state[0]
 
     def step(self, action):
         """
@@ -114,12 +124,14 @@ class EnvironmentWrapper:
         """
         self.time_steps += 1
 
+        reward = 0
         if not self.is_done():
             action_string = str(action[0]) + ',' + str(action[1])
-
-            reward = self.get_basic_reward(self.current_state[1],
-                                           self.current_state[3],
-                                           action)
+            # print(action)
+            if not action == "reset":
+                reward = self.get_basic_reward(self.current_state[1],
+                                               self.current_state[3],
+                                               action)
 
             self.socket.send(action_string.encode('ascii'))
 
@@ -128,7 +140,7 @@ class EnvironmentWrapper:
             speed, angle, distance = self.get_game_stats(data)
 
             for i in range(self.buffer_size):
-                path = self.image_path + "Screenshots/PerspectiveSegment_{}.png".format(i)
+                path = self.image_path + "/Screenshots/PerspectiveSegment_{}.png".format(i+1)
                 f = self.get_frame(path)
                 self.current_buffer.assign_to_buffer(f)
 
@@ -150,7 +162,9 @@ class EnvironmentWrapper:
             return None
 
     def get_next_state(self) -> Dict:
+        # print("Getting next state")
         message = self.socket.recv()
+        # print("State Received: " + message.decode('ascii'))
         # unpack JSON
         return json.loads(message)
 

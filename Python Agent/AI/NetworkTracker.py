@@ -1,6 +1,6 @@
 from AI.State import State
 
-network_name = 'NewPolicy.h5'
+network_name = 'DrivePolicy.h5'
 from keras import layers, models
 import tensorflow as tf
 from keras.optimizers import Adam, RMSprop
@@ -19,7 +19,7 @@ class NetworkTracker:
             self.model.save(network_name)
         self.target_model = self.model
 
-    def define_model(self, env): #defination of the model, its specific to the approach a person is taking.
+    def define_model(self, env): #definition of the model, its specific to the approach a person is taking.
         model = models.Sequential()
         model.add(
             layers.Conv2D(filters=10, kernel_size=(3, 3), activation='relu',
@@ -28,7 +28,7 @@ class NetworkTracker:
         model.add(layers.MaxPool2D((3, 3)))
 
         model.add(
-            layers.Conv2D(filters=20, kernal_size=(2, 2), activation='relu'))
+            layers.Conv2D(filters=20, kernel_size=(2, 2), activation='relu'))
 
         model.add(layers.MaxPool2D(3, 3))
 
@@ -40,7 +40,7 @@ class NetworkTracker:
 
         model.add(layers.Dense(env.get_num_action_space(), activation='linear'))
 
-        model.compile(optimizer='adam',
+        model.compile(optimizer=Adam(lr=0.0001),
                       loss='mse')
         return model
 
@@ -53,7 +53,7 @@ class NetworkTracker:
         return output_tensor[
             0]  # you want to convert the 2 dimensional output to 1 dimension to call argmax
 
-    def get_max_q_value_index(self, state): #self explanatory 
+    def get_max_q_value_index(self, state): #self explanatory
         return np.argmax(self.get_q_values_for_one(state))
 
     def get_q_values_for_batch(self, states):

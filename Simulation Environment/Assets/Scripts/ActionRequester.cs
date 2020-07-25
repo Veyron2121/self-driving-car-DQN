@@ -13,9 +13,10 @@ public class ActionRequester
         using(RequestSocket client = new RequestSocket())
         {
             client.Connect("tcp://localhost:5555");
-
+            
             client.SendFrame(gameState);
             nextAction = client.ReceiveFrameString();
+            
 
             // Debug.Log("Received: " + nextAction);
         }

@@ -12,20 +12,26 @@ class FrameBuffer(DataBuffer):
     def __init__(self, size = 3):
         DataBuffer.__init__(self, size=size)
 
+    def get_input_shape(self):
+        return self.get_input_tensor().shape
+
+    def get_input_tensor(self, in_batch=True):
+        temp = np.array(self.buffer)
+        return temp.transpose((1, 2, 0))
+        # return temp
+
     def assign_to_buffer(self, state: State) -> None:
         """Adds frame to buffer"""
-        if state is State:
+        if isinstance(state, State):
             state = state.get_individual_tensor()
 
         # if buffer not initialised
-        if not self.buffer:
-            self.buffer = np.array([state])
+        if len(self.buffer) == 0:
+            self.buffer = [state]
             return
 
         # if buffer size reached, delete the oldest frame
-        if self.buffer.shape[-1] >= self.size:
-            self.buffer = self.buffer[: ,: ,1:]
+        if len(self.buffer) >= self.size:
+            self.buffer.pop(0)
 
-            # The below line stacks the new frame in the buffer with shape (height, width, buffer_size)
-            #         self.buffer = np.concatenate((self.buffer, state), axis=2)
-            self.buffer = np.concatenate((self.buffer, state), axis=0)
+        self.buffer.append(state)

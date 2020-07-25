@@ -21,10 +21,7 @@ class Frame(State):
         frame = self.normalise_frame(frame)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         assert len(frame.shape) == 2
-        #         print(frame)
 
-        #         print(frame)
-        #         io.imshow(frame)
         frame = self.downsample_frame(frame, destination_shape)
         #     Gray scaling was done above.
         #         frame = self.gray_scale(frame)

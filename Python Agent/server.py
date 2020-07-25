@@ -10,6 +10,12 @@ socket.bind("tcp://*:5555")
 
 controller = HandCraftedController(8, 10, 0.15)
 
+print("Getting Image Path")
+image_path = socket.recv().decode('ascii')
+socket.send("Path Received".encode('ascii'))
+
+print("Image path received: " + str(image_path))
+
 while True:
     #  Wait for next request from client
     message = socket.recv()

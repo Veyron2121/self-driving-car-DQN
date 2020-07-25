@@ -14,7 +14,7 @@ class Memory:
         self.limit = size
         self.exp_count = 0
 
-    def push(self, experience: Tuple[Any]) -> None:
+    def push(self, experience) -> None:
         """Adds an experience to memory"""
         self.exp_count += 1
 

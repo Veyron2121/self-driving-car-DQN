@@ -21,18 +21,20 @@ class Agent:
 
     def take_action(self, current_state):
         # Implement the epsilon greedy strategy
-        result = random.random()                      # get a random number from 0 to 1 with linear distribution
-        explored = False
-        if result > self.get_exp_rate():              # if it falls over the explore rate, exploit
-            action = self.network.get_max_q_value_index(current_state)  # exploit
+        result = random.random()  # get a random number from 0 to 1 with linear distribution
+        if result > self.get_exp_rate():  # if it falls over the explore rate, exploit
+            # Get the action with the maximum q-value
+            action = self.env.get_action_at_index(
+                self.network.get_max_q_value_index(current_state))  # exploit
+        else:  # if it falls under the explore rate, explore
+            action = self.env.get_random_action()  # explore (generate a random action from the environment class)
 
-        else:                                         # if it falls under the explore rate, explore
-            action = self.env.get_random_action()          # explore (generate a random action from the environment class)
-            explored = True
+        self.increment_time_step()  # increment time step as well as update the decay rate
+        next_state, reward, done = self.env.step(
+            action)  # finally, take the action and record the reward
 
-        self.increment_time_step()                    # increment time step as well as update the decay rate
-        next_state, reward, done = self.env.step(action)                     # finally, take the action and record the reward
-        return current_state, action, reward, next_state, done, explored  # return an experience Tuple
+        return current_state, self.env.action_space.index(action), reward, \
+               next_state[0], done  # return an experience Tuple
 
 
     def reset_time_steps(self, i=0):
