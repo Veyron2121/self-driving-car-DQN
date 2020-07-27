@@ -32,6 +32,7 @@ public class AgentInformation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gui_info.text = "";
         info = new Information();
         info.velocity = 0;
         info.angle_from_road = 0;
@@ -94,7 +95,7 @@ public class AgentInformation : MonoBehaviour
         }
 
         // Remove this line to disable GUI
-        gui_info.text = "Speed: " + info.velocity + "\nDistance: " + info.distance_from_road + "\nAngle: " + info.angle_from_road;
+        // gui_info.text = "Speed: " + info.velocity + "\nDistance: " + info.distance_from_road + "\nAngle: " + info.angle_from_road;
 
     }
 }

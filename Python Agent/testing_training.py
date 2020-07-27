@@ -66,6 +66,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     fig = plt.figure()
     subplot = fig.add_subplot(111)
 
+
     for episode_count in range(num_episodes):
         # uncomment if you want to start the environmet with a random move
         # state = env.step(env.get_random_action())[0]
@@ -89,12 +90,12 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
                 memory.push(experience)  # push the experience in memory
 
                 # check if the car is stuck when the reward isn't changing by much
-                if abs(reward) < 0.5:
-                    stuck_counter += 1
-                    if stuck_counter > 5:
-                        break
-                else:
-                    stuck_counter = 0
+                # if abs(reward) < 0.5:
+                #     stuck_counter += 1
+                #     if stuck_counter > 5:
+                #         break
+                # else:
+                #     stuck_counter = 0
 
             if counter > 3:
                 valid_episode = True
@@ -123,6 +124,10 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
+        f = open("VarunCNNstats.txt", "a")
+        f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
+        f.close()
+
         if verbose:
             print("Episode Count: ", episode_count, "\t Cumulative Reward: ",
                   cumulative_reward, "\t eps: ", agent.exp_rate)
@@ -130,12 +135,12 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     return epochs, training_stats, net
 
 if __name__ == '__main__':
-    train_agent(contd=False,
+    train_agent(contd=True,
                 verbose=True,
-                num_episodes=1500,
+                num_episodes=1000,
                 discount=0.99,
-                batch_size=512,
-                N=100,  # how often to clone the target policy
+                batch_size=64,
+                N=25,  # how often to clone the target policy
                 memory_size=2048,
                 eps_decay_rate=0.999,
                 max_exp_rate=0.99,

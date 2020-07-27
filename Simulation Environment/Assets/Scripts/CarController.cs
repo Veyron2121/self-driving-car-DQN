@@ -97,12 +97,25 @@ public class CarController : MonoBehaviour {
 
     private bool is_done = false;
 
+    private int stationary_updates = 0;
+
     public void set_done(bool done){
         this.is_done = done;
     }
 
     public bool get_done(){
         return this.is_done;
+    }
+
+    private void check_stationary(){
+        if(System.Math.Round(GetComponent<Rigidbody>().velocity.magnitude, 2) < 0.1)
+        {
+            stationary_updates++;
+            if(stationary_updates >= 100){
+                stationary_updates = 0;
+                resetPosition();
+            }
+        }
     }
 
     // Used by SoundController to get average slip velo of all wheels for skid sounds.
@@ -187,6 +200,7 @@ public class CarController : MonoBehaviour {
     }
 
     void Update() {
+        check_stationary();
 
         Debug.Log(string.Format("goStraight: {0}, brake: {1}, left: {2}, right: {3}", goStraight, stop, goLeft, goRight));
 

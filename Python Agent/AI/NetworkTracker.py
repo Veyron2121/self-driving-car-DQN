@@ -1,6 +1,6 @@
 from AI.State import State
 
-network_name = 'DrivePolicy.h5'
+network_name = 'DrivePolicyCNN.h5'
 from keras import layers, models
 import tensorflow as tf
 from keras.optimizers import Adam, RMSprop
