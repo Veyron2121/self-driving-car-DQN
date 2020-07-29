@@ -111,9 +111,11 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             target_batch = get_target_batch(states, actions, rewards,
                                             next_states, done_tensor, net,
                                             discount)  # get a batch of target values to fit against
-
-            net.fit(states, target_batch)  # fit the network
-
+            
+# Instead of fitting the state we need to fit current q values, to the targe _batch. 
+            # net.fit(states, target_batch)  # This shoud fix this:
+            net.fit(net.get_q_values_for_batch(states), target_batch)
+        
         training_stats.append(cumulative_reward)
         epochs.append(episode_count)
 

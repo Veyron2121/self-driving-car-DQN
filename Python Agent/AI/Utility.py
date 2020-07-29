@@ -55,7 +55,8 @@ class Utility:
 
                 target_batch = get_target_batch(states, actions, rewards, next_states, done_tensor, net, discount)
 
-
+#instead of fitting the state we need to fit current q values, to the targe _batch. This shoud fix this:
+               # net.fit(net.get_q_values_for_batch(states), target_batch)
                 net.fit(states, target_batch)
 
             if (episode_count + 1) % N == 0:
