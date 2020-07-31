@@ -44,8 +44,6 @@ class EnvironmentWrapper:
 
         _ = self.reset()
 
-
-
         self.time_steps = 0
 
         self.done = False
@@ -108,11 +106,6 @@ class EnvironmentWrapper:
 
         info = self.step("reset")
         self.current_state, _, self.done = info
-
-        # self.current_frame = self.get_frame(path)
-        #
-        # for _ in range(int(self.buffer_size)):
-        #     self.current_buffer.assign_to_buffer(self.current_frame)
 
         return self.current_state[0]
 
@@ -206,12 +199,6 @@ class EnvironmentWrapper:
         returns if the episode is finished
         """
         return self.done
-
-    # def close(self):
-    #     """
-    #     in case we need to 'close' the environment
-    #     """
-    #     raise NotImplementedError
 
     def get_frame(self, path: str) -> Frame:
         """
