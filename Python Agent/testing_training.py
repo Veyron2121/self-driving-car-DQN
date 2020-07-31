@@ -6,6 +6,7 @@ from AI.Agent import Agent
 from AI.EnvironmentWrapper import EnvironmentWrapper
 from AI.Memory import Memory
 from AI.NetworkTracker import NetworkTracker
+from AI.RnnNetworkTracker import RnnNetworkTracker
 
 def extract_tensors(sample):
     states = np.asarray([i[0] for i in sample])
@@ -49,7 +50,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     env = EnvironmentWrapper()
 
     # initialise your policy and target networks
-    net = NetworkTracker(env, source=contd)
+    net = RnnNetworkTracker(env, source=contd)
     print(net.get_model_summary())
 
     # initialise your agent that will follow the epsilon greedy strategy
@@ -111,14 +112,15 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             target_batch = get_target_batch(states, actions, rewards,
                                             next_states, done_tensor, net,
                                             discount)  # get a batch of target values to fit against
-            
 
-            net.fit(states, target_batch)  
 
-        
+            net.fit(states, target_batch)
+
+
         training_stats.append(cumulative_reward)
         epochs.append(episode_count)
 
+        # save the model
         if (episode_count + 1) % N == 0:
             net.clone_policy()  # clone the target policy every N episodes.
 
@@ -126,7 +128,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("VarunCNNstats.txt", "a")
+        f = open("TalesRNNstats.txt", "a")
         f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
         f.close()
 
@@ -137,7 +139,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     return epochs, training_stats, net
 
 if __name__ == '__main__':
-    train_agent(contd=True,
+    train_agent(contd=False,
                 verbose=True,
                 num_episodes=1000,
                 discount=0.99,

@@ -30,7 +30,8 @@ class RnnController(Controller):
         model = keras.Sequential()
 
         # Add a LSTM layer with 32 internal units.
-        model.add(layers.LSTM(32))
+        model.add(
+            layers.LSTM(32, activation='tanh', input_shape=env.get_input_shape()))
 
         # Add a Dense layer with 9 units.
         model.add(layers.Dense(9))

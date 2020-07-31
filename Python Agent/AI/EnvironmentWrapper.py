@@ -12,6 +12,7 @@ from PIL import Image
 from ActionSpace import Acc, Steer
 from AI.Frame import Frame
 from AI.FrameBuffer import FrameBuffer
+from AI.DataBuffer import DataBuffer
 
 
 class EnvironmentWrapper:
@@ -37,9 +38,9 @@ class EnvironmentWrapper:
         # speed, angle, distance = self.get_game_stats(initial_state_info)
 
         # initialising frame buffer
-        self.buffer_size = 3  # could change this
+        self.buffer_size = 50  # could change this
 
-        self.current_buffer = FrameBuffer(size=self.buffer_size)
+        self.current_buffer = DataBuffer(size=self.buffer_size)
         self.current_state = None
 
         _ = self.reset()
@@ -94,7 +95,6 @@ class EnvironmentWrapper:
 
     def reset(self):
         """
-        # TODO: Change
         resets the environment. self.done denotes whether the episode is done i.e. the car has crashed or we have stopped it
         """
         self.done = False
@@ -131,11 +131,13 @@ class EnvironmentWrapper:
             data = self.get_next_state()
             # print("Received request: %s" % message)
             speed, angle, distance = self.get_game_stats(data)
+            self.current_buffer.assign_to_buffer((speed, angle, distance))
 
-            for i in range(self.buffer_size):
-                path = self.image_path + "/Screenshots/PerspectiveSegment_{}.png".format(i+1)
-                f = self.get_frame(path)
-                self.current_buffer.assign_to_buffer(f)
+            # CNN frames
+            # for i in range(self.buffer_size):
+            #     path = self.image_path + "/Screenshots/PerspectiveSegment_{}.png".format(i+1)
+            #     f = self.get_frame(path)
+            #     self.current_buffer.assign_to_buffer(f)
 
             self.done = data["is_done"]
 

@@ -19,41 +19,41 @@ class NetworkTracker:
             self.model.save(network_name)
         self.target_model = self.model
 
-    def define_model(self, env): #definition of the model, its specific to the approach a person is taking.
+    def define_model(self, env): # definition of the model, its specific to the approach a person is taking.
         model = models.Sequential()
-        model.add(
-            layers.Conv2D(filters=10, kernel_size=(3, 3), activation='relu',
-                          input_shape=env.get_input_shape()))
+
+        model.add(layers.Conv2D(filters=10, kernel_size=(3,3),
+                                activation='relu',
+                                input_shape=env.get_input_shape()))
+        # first layer takes input shape from the environment
 
         model.add(layers.MaxPool2D((3, 3)))
 
-        model.add(
-            layers.Conv2D(filters=20, kernel_size=(2, 2), activation='relu'))
+        model.add(layers.Conv2D(filters=20, kernel_size = (3, 3), strides=2, activation='relu'))
 
         model.add(layers.MaxPool2D(3, 3))
 
         model.add(layers.Flatten())
 
-        model.add(layers.Dense(16, activation='softmax'))
+        model.add(layers.Dense(16, activation='sigmoid'))
 
         model.add(layers.Dense(16, activation='relu'))
 
         model.add(layers.Dense(env.get_num_action_space(), activation='linear'))
 
-        model.compile(optimizer=Adam(lr=0.0001),
-                      loss='mse')
+        model.compile(optimizer=Adam(lr=0.0001),loss='mse')
+
         return model
 
     def get_q_values_for_one(self, state):
-
         output_tensor = self.model.predict(state.reshape(
             (1,) + state.shape))  # the State class handles turning the state
         # into an appropriate input tensor for a NN
         # so you don't have to change it everywhere
-        return output_tensor[
-            0]  # you want to convert the 2 dimensional output to 1 dimension to call argmax
+        return output_tensor[0]
+        # you want to convert the 2 dimensional output to 1 dimension to call argmax
 
-    def get_max_q_value_index(self, state): #self explanatory
+    def get_max_q_value_index(self, state): # self explanatory
         return np.argmax(self.get_q_values_for_one(state))
 
     def get_q_values_for_batch(self, states):
@@ -74,7 +74,7 @@ class NetworkTracker:
     def fit(self, states_batch, targets_batch):
         self.model.fit(states_batch, targets_batch, verbose=1)
 
-    def clone_policy(self): #defining the target network
+    def clone_policy(self):  # defining the target network
         self.model.save(network_name)
         self.target_model = models.load_model(network_name)
 
