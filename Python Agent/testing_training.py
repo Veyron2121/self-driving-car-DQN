@@ -50,6 +50,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     env = EnvironmentWrapper()
 
     # initialise your policy and target networks
+    # change here the model you want to train
     net = RnnNetworkTracker(env, source=contd)
     print(net.get_model_summary())
 
@@ -101,7 +102,8 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             if counter > 3:
                 valid_episode = True
 
-        agent.update_epsilon()  # update the exploration rate of the agent after each episode
+        # update the exploration rate of the agent after each episode
+        agent.update_epsilon()
 
         if memory.is_usable(batch_size):
             experience_batch = memory.sample(
