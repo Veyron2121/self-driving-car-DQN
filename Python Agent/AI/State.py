@@ -6,7 +6,7 @@ class State:
 
     state_data: np.array
 
-    def __init__(self, state_data: Tuple[float]):
+    def __init__(self, state_data: Tuple[float, float, float]):
         self.state_data = np.asarray(state_data)
 
     def process_state(self):
