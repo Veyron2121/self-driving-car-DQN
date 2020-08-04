@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
 
 from AI import *
 from AI.Agent import Agent
@@ -27,8 +28,7 @@ def get_target_batch(states, actions, rewards, next_states, dones, net, gamma):
         states)  # get the q values from the current states
     targets = rewards + gamma * (np.max(net.get_target_tensor(next_states),
                                         axis=1))  # get the target values for the state action pairs.
-    for i in range(len(
-            targets)):  # change the targets for state which ended an episode
+    for i in range(len(targets)):  # change the targets for state which ended an episode
         if dones[i]:
             targets[i] = rewards[i]
 
@@ -106,8 +106,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
         agent.update_epsilon()
 
         if memory.is_usable(batch_size):
-            experience_batch = memory.sample(
-                batch_size)  # sample randomly from memory
+            experience_batch = memory.sample(batch_size)  # sample randomly from memory
             states, actions, rewards, next_states, done_tensor = extract_tensors(
                 experience_batch)  # unzips the tensors
 
@@ -115,9 +114,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
                                             next_states, done_tensor, net,
                                             discount)  # get a batch of target values to fit against
 
-
             net.fit(states, target_batch)
-
 
         training_stats.append(cumulative_reward)
         epochs.append(episode_count)
@@ -130,7 +127,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("TalesRNNstats.txt", "a")
+        f = open("TalesRNNstats50.txt", "a")
         f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
         f.close()
 
@@ -143,7 +140,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
 if __name__ == '__main__':
     train_agent(contd=False,
                 verbose=True,
-                num_episodes=1000,
+                num_episodes=6000,
                 discount=0.99,
                 batch_size=64,
                 N=25,  # how often to clone the target policy

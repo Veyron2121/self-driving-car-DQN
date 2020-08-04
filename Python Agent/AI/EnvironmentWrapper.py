@@ -11,6 +11,7 @@ from PIL import Image
 
 from ActionSpace import Acc, Steer
 from AI.Frame import Frame
+from AI.State import State
 from AI.FrameBuffer import FrameBuffer
 from AI.DataBuffer import DataBuffer
 
@@ -131,7 +132,8 @@ class EnvironmentWrapper:
             data = self.get_next_state()
             # print("Received request: %s" % message)
             speed, angle, distance = self.get_game_stats(data)
-            self.current_buffer.assign_to_buffer((speed, angle, distance))
+            state = State((speed, angle, distance))
+            self.current_buffer.assign_to_buffer(state)
 
             # CNN frames
             # for i in range(self.buffer_size):
