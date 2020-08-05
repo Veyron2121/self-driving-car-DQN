@@ -32,9 +32,10 @@ class Agent:
         self.increment_time_step()  # increment time step as well as update the decay rate
         next_state, reward, done = self.env.step(
             action)  # finally, take the action and record the reward
+        # print("Next State Dimension: {}".format(next_state.shape))
 
         return current_state, self.env.action_space.index(action), reward, \
-               next_state[0], done  # return an experience Tuple
+               next_state, done  # return an experience Tuple
 
 
     def reset_time_steps(self, i=0):

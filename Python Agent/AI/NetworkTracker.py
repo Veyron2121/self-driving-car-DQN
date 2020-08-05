@@ -1,6 +1,6 @@
 from AI.State import State
 
-network_name = 'DrivePolicyCNN.h5'
+network_name = 'VarunDrivePolicyRNN.h5'
 from keras import layers, models
 import tensorflow as tf
 from keras.optimizers import Adam, RMSprop
@@ -46,6 +46,8 @@ class NetworkTracker:
         return model
 
     def get_q_values_for_one(self, state):
+        # print("State : {}".format(state))
+        # print("State shape: {}". format(state.shape))
         output_tensor = self.model.predict(state.reshape(
             (1,) + state.shape))  # the State class handles turning the state
         # into an appropriate input tensor for a NN
@@ -72,6 +74,7 @@ class NetworkTracker:
         return output_tensor
 
     def fit(self, states_batch, targets_batch):
+        print("Fitting Model with shape: {}".format(states_batch.shape))
         self.model.fit(states_batch, targets_batch, verbose=1)
 
     def clone_policy(self):  # defining the target network

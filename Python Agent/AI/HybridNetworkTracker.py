@@ -22,9 +22,9 @@ class HybridNetworkTracker(NetworkTracker):
         cnn.add(LeakyReLU(alpha=leaky_relu_alpha))
         cnn.add(layers.Conv2D(filters=1, kernel_size=(3, 3)))
         cnn.add(LeakyReLU(alpha=leaky_relu_alpha))
-        cnn.add(layers.Dense(env.get_num_action_space())
+        cnn.add(layers.Dense(env.get_num_action_space()))
         cnn.add(LeakyReLU(alpha=leaky_relu_alpha))
-        cnn.add(layers.Dense(env.get_num_action_space())
+        cnn.add(layers.Dense(env.get_num_action_space()))
         cnn.add(LeakyReLU(alpha=leaky_relu_alpha))
         cnn.compile(optimizer='adam', loss='mse')
 
@@ -34,4 +34,6 @@ class HybridNetworkTracker(NetworkTracker):
         # Add a Dense layer with 9 units.
         rnn.add(layers.Dense(9))
         rnn.compile(optimizer='adam', loss='mse')
+
+
 

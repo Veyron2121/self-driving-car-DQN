@@ -5,6 +5,7 @@ import tensorflow as tf
 from AI import *
 from AI.Agent import Agent
 from AI.EnvironmentWrapper import EnvironmentWrapper
+from AI.RNNEnvironmentWrapper import RNNEnvironmentWrapper
 from AI.Memory import Memory
 from AI.NetworkTracker import NetworkTracker
 from AI.RnnNetworkTracker import RnnNetworkTracker
@@ -24,6 +25,8 @@ def get_target_batch(states, actions, rewards, next_states, dones, net, gamma):
     assert dones.ndim == 1
     assert len(actions) == len(rewards) == len(dones) == len(states) == len(
         next_states)
+    # print("Batch States: {}".format(states))
+    # print("Batch States Shape:{}".format(states.shape))
     target_q_values = net.get_q_values_for_batch(
         states)  # get the q values from the current states
     targets = rewards + gamma * (np.max(net.get_target_tensor(next_states),
@@ -47,7 +50,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     training_stats = []
 
     # initialise your environment
-    env = EnvironmentWrapper()
+    env = RNNEnvironmentWrapper()
 
     # initialise your policy and target networks
     # change here the model you want to train
@@ -68,7 +71,6 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     fig = plt.figure()
     subplot = fig.add_subplot(111)
 
-
     for episode_count in range(num_episodes):
         # uncomment if you want to start the environmet with a random move
         # state = env.step(env.get_random_action())[0]
@@ -86,18 +88,11 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
                 counter += 1
                 current_state, action, reward, next_state, done = agent.take_action(
                     state)  # let the agent take an action for one time step
+                # print("Current State: {}".format(current_state))
                 cumulative_reward += reward
                 experience = current_state, action, reward, next_state, done  # experience tuple
                 state = next_state  # update the current state
                 memory.push(experience)  # push the experience in memory
-
-                # check if the car is stuck when the reward isn't changing by much
-                # if abs(reward) < 0.5:
-                #     stuck_counter += 1
-                #     if stuck_counter > 5:
-                #         break
-                # else:
-                #     stuck_counter = 0
 
             if counter > 3:
                 valid_episode = True
@@ -109,6 +104,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             experience_batch = memory.sample(batch_size)  # sample randomly from memory
             states, actions, rewards, next_states, done_tensor = extract_tensors(
                 experience_batch)  # unzips the tensors
+            # print("Experience Batch:{}".format(experience_batch))
 
             target_batch = get_target_batch(states, actions, rewards,
                                             next_states, done_tensor, net,
@@ -127,7 +123,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("TalesRNNstats50.txt", "a")
+        f = open("VarunRNNstats50.txt", "a")
         f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
         f.close()
 
@@ -144,7 +140,7 @@ if __name__ == '__main__':
                 discount=0.99,
                 batch_size=64,
                 N=25,  # how often to clone the target policy
-                memory_size=2048,
+                memory_size=5196,
                 eps_decay_rate=0.999,
                 max_exp_rate=0.99,
                 min_exp_rate=0.05)
