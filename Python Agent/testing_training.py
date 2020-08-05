@@ -123,7 +123,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("VarunRNNstats50.txt", "a")
+        f = open("TalesRNNstats50.txt", "a")
         f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
         f.close()
 
@@ -136,7 +136,7 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
 if __name__ == '__main__':
     train_agent(contd=False,
                 verbose=True,
-                num_episodes=6000,
+                num_episodes=10000,
                 discount=0.99,
                 batch_size=64,
                 N=25,  # how often to clone the target policy

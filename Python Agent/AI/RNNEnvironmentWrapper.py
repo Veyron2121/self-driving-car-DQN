@@ -133,6 +133,8 @@ class RNNEnvironmentWrapper:
             speed, angle, distance = self.get_game_stats(data)
             state = State((speed, angle, distance))
             if self.current_buffer.reinitialize_next:
+                # only happens if there aren't <timesteps> yet available
+                # reinitialize_buffer replicates the input state <size> times into the buffer
                 self.current_buffer.reinitialize_buffer(state)
             self.current_buffer.assign_to_buffer(state)
 
