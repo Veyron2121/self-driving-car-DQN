@@ -90,7 +90,9 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
                     state)  # let the agent take an action for one time step
                 # print("Current State: {}".format(current_state))
                 cumulative_reward += reward
-                experience = current_state, action, reward, next_state, done  # experience tuple
+
+                # experience tuple
+                experience = current_state, action, reward, next_state, done
                 state = next_state  # update the current state
                 memory.push(experience)  # push the experience in memory
 
@@ -123,13 +125,18 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("TalesRNNstats50.txt", "a")
+        f = open("Policies and Stats/TalesRNNstats50.txt", "a")
         f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
         f.close()
 
         if verbose:
             print("Episode Count: ", episode_count, "\t Cumulative Reward: ",
                   cumulative_reward, "\t eps: ", agent.exp_rate)
+
+        total_actions = agent.algorithm_count + agent.random_count
+        percent = agent.random_count / total_actions * 100
+        print(f"{round(percent, 2)}% ({agent.random_count}/{total_actions}) "
+              f"of the model's actions were taken randomly")
 
     return epochs, training_stats, net
 

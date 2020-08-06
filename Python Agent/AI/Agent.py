@@ -21,6 +21,10 @@ class Agent:
 
         self.time_step = 0     # keeps track of time steps
 
+        # keep track of random and algorithm based actions
+        self.random_count = 0
+        self.algorithm_count = 0
+
         self.network = network
 
     def take_action(self, current_state):
@@ -34,11 +38,13 @@ class Agent:
             # Get the action with the maximum q-value
             action = self.env.get_action_at_index(
                 self.network.get_max_q_value_index(current_state))  # exploit
-            print("Network Algorithm")
+            # counts a algorithm action
+            self.algorithm_count += 1
         else:  # if it falls under the explore rate, explore
             # explore (generate a random action from the environment class)
             action = self.env.get_random_action()
-            print("Random Action")
+            # counts a random action
+            self.random_count += 1
 
         # increment time step as well as update the decay rate
         self.increment_time_step()

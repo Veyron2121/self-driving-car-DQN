@@ -74,7 +74,6 @@ class NetworkTracker:
         return output_tensor
 
     def fit(self, states_batch, targets_batch):
-        print("Fitting Model with shape: {}".format(states_batch.shape))
         self.model.fit(states_batch, targets_batch, verbose=1)
 
     def clone_policy(self):  # defining the target network
