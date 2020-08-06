@@ -142,5 +142,5 @@ if __name__ == '__main__':
                 N=25,  # how often to clone the target policy
                 memory_size=5196,
                 eps_decay_rate=0.999,
-                max_exp_rate=0.99,
+                max_exp_rate=0.05,
                 min_exp_rate=0.05)

@@ -5,8 +5,8 @@ from keras.layers import LeakyReLU
 network_name = 'TalesDrivePolicyRNN50.h5'
 
 class RnnNetworkTracker(NetworkTracker):
-    def __init__(self, environment,
-                 source: bool = False):  # pass in the environment which has input shape of the frame
+    def __init__(self, environment, source: bool = False):
+        # pass in the environment which has input shape of the frame
         if source:
             self.model = models.load_model(network_name)
         else:
@@ -18,7 +18,8 @@ class RnnNetworkTracker(NetworkTracker):
         model = models.Sequential()
 
         # Add a LSTM layer with 32 internal units.
-        model.add(layers.LSTM(32, activation='tanh', input_shape=env.get_input_shape))
+        model.add(layers.LSTM(32, activation='tanh',
+                              input_shape=env.get_input_shape()))
 
         # Add a Dense layer with <action space> units.
         model.add(layers.Dense(env.get_num_action_space(), activation='linear'))

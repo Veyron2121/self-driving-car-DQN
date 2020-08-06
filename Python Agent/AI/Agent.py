@@ -3,17 +3,21 @@ import random
 
 class Agent:
 
-    def __init__(self, environment, network, run_only=False, eps_decay_rate=0.9975,max_exp_rate=1.0, min_exp_rate=0.05):
-        self.env = environment # this should be the environment wrapper class
+    def __init__(self, environment, network, run_only=False,
+                 eps_decay_rate=0.9975, max_exp_rate=1.0, min_exp_rate=0.05):
+        self.env = environment  # this should be the environment wrapper class
 
         if not run_only:
-            self.exp_rate = max_exp_rate     # our network starts off with this exploration rate
+            # our network starts off with this exploration rate
+            self.exp_rate = max_exp_rate
         else:
             self.exp_rate = 0.0
 
-        self.min_exp_rate = min_exp_rate  # have at least 0.01 exploration rate at all times
+        # have at least 0.01 exploration rate at all times
+        self.min_exp_rate = min_exp_rate
 
-        self.decay_rate = eps_decay_rate   # decay the exploration rate at this rate
+        # decay the exploration rate at this rate
+        self.decay_rate = eps_decay_rate
 
         self.time_step = 0     # keeps track of time steps
 
@@ -21,18 +25,25 @@ class Agent:
 
     def take_action(self, current_state):
         # Implement the epsilon greedy strategy
-        result = random.random()  # get a random number from 0 to 1 with linear distribution
-        if result > self.get_exp_rate():  # if it falls over the explore rate, exploit
+
+        # get a random number from 0 to 1 with linear distribution
+        result = random.random()
+
+        # if it falls over the explore rate, exploit
+        if result > self.get_exp_rate():
             # Get the action with the maximum q-value
             action = self.env.get_action_at_index(
                 self.network.get_max_q_value_index(current_state))  # exploit
+            print("Network Algorithm")
         else:  # if it falls under the explore rate, explore
-            action = self.env.get_random_action()  # explore (generate a random action from the environment class)
+            # explore (generate a random action from the environment class)
+            action = self.env.get_random_action()
+            print("Random Action")
 
-        self.increment_time_step()  # increment time step as well as update the decay rate
+        # increment time step as well as update the decay rate
+        self.increment_time_step()
         next_state, reward, done = self.env.step(
             action)  # finally, take the action and record the reward
-        # print("Next State Dimension: {}".format(next_state.shape))
 
         return current_state, self.env.action_space.index(action), reward, \
                next_state, done  # return an experience Tuple
