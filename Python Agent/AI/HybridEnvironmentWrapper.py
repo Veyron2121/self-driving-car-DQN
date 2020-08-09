@@ -1,7 +1,5 @@
 import json
-import os
 import random
-from pathlib import Path
 from tkinter import Image
 from typing import Dict
 
@@ -9,14 +7,14 @@ import numpy as np
 import zmq
 from PIL import Image
 
+from AI.FrameBuffer import FrameBuffer
 from ActionSpace import Acc, Steer
 from AI.Frame import Frame
 from AI.State import State
-from AI.FrameBuffer import FrameBuffer
 from AI.DataBuffer import DataBuffer
 
 
-class EnvironmentWrapper:
+class HybridEnvironmentWrapper:
 
     def __init__(self):
 
@@ -39,10 +37,12 @@ class EnvironmentWrapper:
         # speed, angle, distance = self.get_game_stats(initial_state_info)
 
         # initialising frame buffer
-        # self.buffer_size = 50  # could change this
-        self.buffer_size = 3
+        self.data_buffer_size = 50  # could change this
 
-        self.current_buffer = FrameBuffer(size=self.buffer_size)
+        self.data_buffer = DataBuffer(size=self.data_buffer_size)
+
+        self.frame_buffer_size = 3
+        self.frame_buffer = FrameBuffer(size=self.frame_buffer_size)
         self.current_state = None
 
         _ = self.reset()
@@ -69,7 +69,7 @@ class EnvironmentWrapper:
         """
         returns the input shape for the input layer of the network
         """
-        return self.current_buffer.get_input_shape()
+        return self.frame_buffer.get_input_shape(), self.data_buffer.get_input_shape()
 
     # def get_state_shape(self):
     #     """
@@ -104,12 +104,14 @@ class EnvironmentWrapper:
 
         # reset the sim and get the initial frame from it in the folder
 
-        # path = self.image_path + "/Screenshots/PerspectiveSegment_1.png"
+        path = self.image_path + "/Screenshots/PerspectiveSegment_1.png"
 
         info = self.step("reset")
-        self.current_state, _, self.done = info
+        current_state, _, self.done = info
+        self.current_state = current_state[0], *current_state[1][0]
+        # print("Reset Current State: {} --\n-- {}".format(current_state, self.current_state))
 
-        return self.current_state[0]
+        return current_state
 
     def step(self, action):
         """
@@ -134,28 +136,33 @@ class EnvironmentWrapper:
             # print("Received request: %s" % message)
             speed, angle, distance = self.get_game_stats(data)
             state = State((speed, angle, distance))
-            # self.data_buffer.assign_to_buffer(state)
 
-            # CNN frames
-            for i in range(self.buffer_size):
-                path = self.image_path + "/Screenshots/PerspectiveSegment_{}.png".format(i+1)
-                f = self.get_frame(path)
-                self.current_buffer.assign_to_buffer(f)
+            if self.data_buffer.reinitialize_next:
+                self.data_buffer.reinitialize_buffer(state)
+            self.data_buffer.assign_to_buffer(state)
 
             self.done = data["is_done"]
 
-            buffer_tensor = self.current_buffer.get_input_tensor()
             # A buffer is a collection of consecutive frames that we feed to the NN.
             # These frames are already processed.
+            for i in range(self.frame_buffer_size):
+                path = self.image_path + "/Screenshots/PerspectiveSegment_{}.png".format(i+1)
+                f = self.get_frame(path)
+                self.frame_buffer.assign_to_buffer(f)
 
+            data_buffer_tensor = self.data_buffer.get_input_tensor()
+            frame_buffer_tensor = self.frame_buffer.get_input_tensor()
             # the current state consists of all the information from the
             # environment
-            self.current_state = (buffer_tensor, angle, distance, speed)
+            self.current_state = (frame_buffer_tensor, angle, distance, speed)
+
+            if self.done:
+                self.data_buffer.set_reinitialize_next(True)
 
             # this returns the state of the environment after the action has
             # been completed, the reward for the action and if the
             # episode ended.
-            return self.current_state, reward, self.done
+            return (frame_buffer_tensor, data_buffer_tensor), reward, self.done
         else:
             return None
 
@@ -165,7 +172,6 @@ class EnvironmentWrapper:
         # print("State Received: " + message.decode('ascii'))
         # unpack JSON
         return json.loads(message)
-
 
     def get_basic_reward(self, angle, speed, action):
         v_min = 5
@@ -219,7 +225,7 @@ class EnvironmentWrapper:
         get the last n frames from the simulator (they might be stored in a folder by the simulator)
         and store them in a buffer and return them
         """
-        return self.current_buffer
+        return self.data_buffer
 
     def get_game_stats(self, data):
         """

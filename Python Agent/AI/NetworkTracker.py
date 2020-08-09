@@ -26,6 +26,7 @@ class NetworkTracker:
                                 activation='relu',
                                 input_shape=env.get_input_shape()))
         # first layer takes input shape from the environment
+        print(env.get_input_shape())
 
         model.add(layers.MaxPool2D((3, 3)))
 

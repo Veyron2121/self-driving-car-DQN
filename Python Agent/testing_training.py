@@ -5,6 +5,8 @@ import tensorflow as tf
 from AI import *
 from AI.Agent import Agent
 from AI.EnvironmentWrapper import EnvironmentWrapper
+from AI.HybridEnvironmentWrapper import HybridEnvironmentWrapper
+from AI.HybridNetworkTracker import HybridNetworkTracker
 from AI.RNNEnvironmentWrapper import RNNEnvironmentWrapper
 from AI.Memory import Memory
 from AI.NetworkTracker import NetworkTracker
@@ -50,11 +52,11 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     training_stats = []
 
     # initialise your environment
-    env = RNNEnvironmentWrapper()
+    env = HybridEnvironmentWrapper()
 
     # initialise your policy and target networks
     # change here the model you want to train
-    net = RnnNetworkTracker(env, source=contd)
+    net = HybridNetworkTracker(env, source=contd)
     print(net.get_model_summary())
 
     # initialise your agent that will follow the epsilon greedy strategy
@@ -125,8 +127,8 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
             subplot.plot(epochs, training_stats, color='b')
             fig.canvas.draw()
 
-        f = open("Policies and Stats/TalesRNNstats50.txt", "a")
-        f.write("{},{},{}\n".format(episode_count, cumulative_reward, agent.exp_rate))
+        f = open("Policies and Stats/VarunHybridstats.txt", "a")
+        f.write("{},{},{}\n".format(episode_count+2950, cumulative_reward, agent.exp_rate))
         f.close()
 
         if verbose:
@@ -141,13 +143,13 @@ def train_agent(contd=True, verbose=False, num_episodes=1500,
     return epochs, training_stats, net
 
 if __name__ == '__main__':
-    train_agent(contd=False,
+    train_agent(contd=True,
                 verbose=True,
                 num_episodes=10000,
                 discount=0.99,
-                batch_size=64,
+                batch_size=128,
                 N=25,  # how often to clone the target policy
                 memory_size=5196,
                 eps_decay_rate=0.999,
-                max_exp_rate=0.05,
+                max_exp_rate=0.05215803760168396,
                 min_exp_rate=0.05)
