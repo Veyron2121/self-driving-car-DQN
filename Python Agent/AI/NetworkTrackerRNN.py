@@ -6,7 +6,7 @@ class NetworkTrackerRNN(NetworkTracker):
 
     # pass in the environment which has input shape of the frame
     def __init__(self, environment, source: bool = False,
-                 network_name: str = 'DrivePolicyCNN.h5'):
+                 network_name: str = 'DrivePolicyRNN.h5'):
         super.__init__(environment, source, network_name)
 
     def define_model(self, env):
