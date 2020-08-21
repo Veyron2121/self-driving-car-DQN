@@ -7,17 +7,13 @@ from keras.layers import Dense, LeakyReLU, concatenate
 
 from AI.State import State
 
-network_name = 'VarunDrivePolicyHybrid.h5'
-class HybridNetworkTracker(NetworkTracker):
 
-    def __init__(self, environment,
-                 source: bool = False):  # pass in the environment which has input shape of the frame
-        if source:
-            self.model = models.load_model(network_name)
-        else:
-            self.model = self.define_model(environment)
-            self.model.save(network_name)
-        self.target_model = self.model
+class NetworkTrackerHybrid(NetworkTracker):
+
+    # pass in the environment which has input shape of the frame
+    def __init__(self, environment, source: bool = False,
+                 network_name: str = 'DrivePolicyHybrid.h5'):
+        super.__init__(environment, source, network_name)
 
     def define_model(self, env):
         leaky_relu_alpha = 0.3
@@ -45,7 +41,7 @@ class HybridNetworkTracker(NetworkTracker):
 
         # Add a LSTM layer with 32 internal units.
         rnn.add(layers.LSTM(32, activation='tanh',
-                            input_shape=env.get_input_shape()[1]))  # env.get_input_shape
+                            input_shape=env.get_input_shape()[1]))
         # print("Input Shape: {}".format(env.get_input_shape()))
         # rnn.compile(optimizer='adam', loss='mse')
         # Add a Dense layer with <action space> units.
@@ -67,14 +63,11 @@ class HybridNetworkTracker(NetworkTracker):
         # print("State shape: {}". format(state.shape))
         output_tensor = self.model.predict([state[0].reshape(
             (1,) + state[0].shape), state[1].reshape(
-            (1,) + state[1].shape)])  # the State class handles turning the state
-        # into an appropriate input tensor for a NN
-        # so you don't have to change it everywhere
+            (1,) + state[1].shape)])
+        # the State class handles turning the state into an appropriate input
+        # tensor for a NN so you don't have to change it everywhere
         return output_tensor[0]
-        # you want to convert the 2 dimensional output to 1 dimension to call argmax
-
-    def get_max_q_value_index(self, state): # self explanatory
-        return np.argmax(self.get_q_values_for_one(state))
+        # want to convert the 2 dimensional output to 1 dimension to call argmax
 
     def get_q_values_for_batch(self, states):
         # if states[0][0] is State:
@@ -99,10 +92,9 @@ class HybridNetworkTracker(NetworkTracker):
         return output_tensor
 
     def fit(self, states_batch, targets_batch):
-
         frame_information = np.asarray([i[0] for i in states_batch])
         data_information = np.asarray([i[1] for i in states_batch])
         print("Fitting Model with shape: {}, {}".format(frame_information.shape,
                                                         data_information.shape))
-        self.model.fit([frame_information, data_information], targets_batch, verbose=1)
-
+        self.model.fit([frame_information, data_information], targets_batch,
+                       verbose=1)
